@@ -28,7 +28,7 @@ function AssistenteLayout() {
   }
 
   return (
-    <div className="mx-auto grid h-[calc(100vh-81px)] max-w-7xl gap-4 px-4 py-4 md:grid-cols-[260px_1fr]">
+    <div className="mx-auto grid h-[calc(100dvh-8rem)] min-h-[26rem] max-w-7xl gap-4 px-2 py-2 sm:px-4 sm:py-4 md:h-[calc(100dvh-81px)] md:grid-cols-[260px_1fr]">
       <aside className="hidden flex-col gap-3 overflow-hidden rounded-2xl border border-border bg-sidebar p-3 md:flex">
         <Button variant="hero" onClick={newThread}>
           <Plus /> Nova conversa

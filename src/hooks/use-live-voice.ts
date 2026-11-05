@@ -279,7 +279,8 @@ function createLiveVoice(options: LiveOptions) {
   async function gatherCandidates(connection: RTCPeerConnection) {
     if (connection.iceGatheringState === "complete") return;
     await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => finish(new Error("Voice network setup timed out")), 10_000);
+      // Phones often never reach "complete"; continue with the candidates gathered so far.
+      const timeout = setTimeout(() => finish(), 2_500);
       function finish(error?: Error) {
         clearTimeout(timeout);
         connection.removeEventListener("icegatheringstatechange", changed);
@@ -309,7 +310,9 @@ function createLiveVoice(options: LiveOptions) {
         stream.getTracks().forEach((track) => track.stop());
         return;
       }
-      const connection = new RTCPeerConnection();
+      const connection = new RTCPeerConnection({
+        iceServers: [{ urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] }],
+      });
       peer = connection;
       for (const track of stream.getAudioTracks()) {
         track.enabled = !muted;

@@ -78,7 +78,19 @@ async function gatewayRejection(response: Response) {
 
 export function validateLiveUpgrade(request: Request, options: { allowMissingOrigin?: boolean } = {}): Response | null {
   const origin = request.headers.get("origin");
-  if (origin === null ? !options.allowMissingOrigin : origin !== new URL(request.url).origin) {
+  let originHost: string | null = null;
+  try {
+    originHost = origin ? new URL(origin).host : null;
+  } catch {
+    originHost = null;
+  }
+  // Behind the preview/hosting proxy request.url may carry an internal host, so accept forwarded hosts too.
+  const allowedHosts = [
+    new URL(request.url).host,
+    request.headers.get("host"),
+    ...(request.headers.get("x-forwarded-host") ?? "").split(",").map((h) => h.trim()),
+  ].filter(Boolean);
+  if (origin === null ? !options.allowMissingOrigin : !originHost || !allowedHosts.includes(originHost)) {
     return new Response("Voice connection origin rejected", { status: 403 });
   }
   if (request.method !== "GET" || request.headers.get("upgrade")?.toLowerCase() !== "websocket") {
