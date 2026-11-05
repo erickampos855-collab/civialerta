@@ -53,6 +53,15 @@
   --color-level-3-foreground: var(--level-3-foreground);
   --color-level-4: var(--level-4);
   --color-level-4-foreground: var(--level-4-foreground);
+  --color-temp-1: var(--temp-1);
+  --color-temp-2: var(--temp-2);
+  --color-temp-3: var(--temp-3);
+  --color-temp-4: var(--temp-4);
+  --color-temp-5: var(--temp-5);
+  --color-temp-6: var(--temp-6);
+  --color-temp-foreground: var(--temp-foreground);
+  --color-map-land: var(--map-land);
+  --color-map-stroke: var(--map-stroke);
   --color-offline: var(--offline);
   --color-offline-foreground: var(--offline-foreground);
 
@@ -108,6 +117,17 @@
   --level-3-foreground: oklch(0.15 0.03 50);
   --level-4: oklch(0.57 0.23 27);
   --level-4-foreground: oklch(0.99 0 0);
+  /* Temperature scale (cold → hot) */
+  --temp-1: oklch(0.62 0.15 250);
+  --temp-2: oklch(0.75 0.12 215);
+  --temp-3: oklch(0.79 0.16 155);
+  --temp-4: oklch(0.87 0.17 92);
+  --temp-5: oklch(0.72 0.19 52);
+  --temp-6: oklch(0.6 0.23 27);
+  --temp-foreground: oklch(0.15 0.02 260);
+  --map-land: oklch(0.24 0.07 262);
+  --map-stroke: oklch(0.4 0.08 262);
+
   --offline: oklch(0.4 0.02 260);
   --offline-foreground: oklch(0.98 0 0);
 

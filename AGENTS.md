@@ -33,3 +33,5 @@ use the editor.
 - Alert rules (levels, thresholds, 4 s reading time, anti-false-alarm confirmation) live as pure functions in `src/lib/alerts.ts` with tests in `src/test/alerts.test.ts` — keeps safety logic testable and separate from UI.
 - Station state lives in `src/lib/station-store.ts` (browser store, localStorage, simulator as data source) — swap `simulateReading` for real Arduino data when the station is connected.
 - AI assistant streams through `/api/chat` (server route) with Lovable AI Gateway Responses helpers in `src/lib/ai/`; conversations are threads at `/assistente/$threadId` saved in localStorage — keeps the API key server-side.
+- Live weather for other Brazilian cities comes from Open-Meteo (free, no key) via `src/lib/weather.server.ts`, used by the `/brasil` map server function and the assistant's `consultar_tempo` tool — one source, no secrets.
+- The Brazil map is a pre-simplified SVG (`src/lib/brazil-map.ts`, generated with its own `project()`); no tile provider or map SDK — avoids keys and SSR issues.

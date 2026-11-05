@@ -3,6 +3,7 @@ import logo from "@/assets/logo-instituto.png.asset.json";
 
 const NAV = [
   { to: "/", label: "Painel" },
+  { to: "/brasil", label: "Brasil" },
   { to: "/historico", label: "Histórico" },
   { to: "/assistente", label: "Assistente IA" },
   { to: "/admin", label: "Administração" },
