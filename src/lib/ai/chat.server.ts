@@ -28,6 +28,16 @@ const weatherTools = {
           vento_kmh: w.vento,
           condicao: w.condicao,
           horario_local: w.horario,
+          chuva_agora_mm: w.chuva,
+          previsao_7_dias: w.previsao.map((d) => ({
+            data: d.data,
+            max: d.max,
+            min: d.min,
+            chuva_mm: d.chuva,
+            chance_chuva: d.probChuva,
+            vento_max_kmh: d.ventoMax,
+            condicao: describeWeather(d.codigo),
+          })),
           fonte: "Open-Meteo (modelo meteorológico, não é alerta oficial)",
         };
       } catch (e) {
