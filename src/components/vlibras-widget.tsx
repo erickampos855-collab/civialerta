@@ -18,7 +18,11 @@ export function VLibrasWidget() {
     script.src = "https://vlibras.gov.br/app/vlibras-plugin.js";
     script.async = true;
     script.onload = () => {
-      if (window.VLibras) new window.VLibras.Widget("https://vlibras.gov.br/app");
+      if (!window.VLibras) return;
+      new window.VLibras.Widget("https://vlibras.gov.br/app");
+      // The plugin starts on window "load", which already happened in this app.
+      const onload = (window as unknown as { onload?: (() => void) | null }).onload;
+      if (typeof onload === "function") onload();
     };
     document.body.appendChild(script);
   }, []);
