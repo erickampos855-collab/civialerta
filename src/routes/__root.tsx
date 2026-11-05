@@ -15,6 +15,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { startStation } from "../lib/station-store";
 import { SiteHeader } from "../components/site-header";
 import { Toaster } from "../components/ui/sonner";
+import { VLibrasWidget } from "../components/vlibras-widget";
+import { startI18n } from "../lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -116,6 +118,7 @@ function RootComponent() {
 
   // Weather station engine runs while the site is open.
   useEffect(() => startStation(), []);
+  useEffect(() => startI18n(), []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -126,6 +129,7 @@ function RootComponent() {
         </main>
       </div>
       <Toaster position="top-center" />
+      <VLibrasWidget />
     </QueryClientProvider>
   );
 }
