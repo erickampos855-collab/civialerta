@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LEVEL_INFO, type Level } from "@/lib/alerts";
 import { selectStatus, useStation } from "@/lib/station-store";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,16 +23,11 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const LEVEL_HINT: Record<Level, string> = {
-  1: "Tempo normal",
-  2: "Fique atento",
-  3: "Tome cuidado",
-  4: "Risco elevado",
-};
 
 function Index() {
   const s = useStation();
   const status = selectStatus(s);
+  const t = useT();
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-6">
@@ -45,9 +41,9 @@ function Index() {
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-2">
-          <h2 className="text-2xl font-bold">Sensores da estação</h2>
+          <h2 className="text-2xl font-bold">{t("home.sensores")}</h2>
           <p className="text-sm text-muted-foreground">
-            Dados simulados até a estação Arduino ser conectada · atualiza a cada 3 s
+            {t("home.simulados")}
           </p>
         </div>
         <SensorGrid readings={s.readings} faulty={s.faultySensors} offline={status.offline} />
@@ -55,34 +51,34 @@ function Index() {
 
       <section className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-3">
-          <h2 className="text-2xl font-bold">Níveis de alerta</h2>
+          <h2 className="text-2xl font-bold">{t("home.niveis")}</h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {([1, 2, 3, 4] as Level[]).map((l) => (
               <div key={l} className={cn("rounded-2xl p-4", LEVEL_SURFACE[l])}>
-                <p className="text-sm font-bold uppercase">Nível {l}</p>
+                <p className="text-sm font-bold uppercase">{t("home.nivel")} {l}</p>
                 <p className="font-display text-xl font-extrabold">{LEVEL_INFO[l].nome}</p>
-                <p className="text-sm font-semibold">{LEVEL_HINT[l]}</p>
+                <p className="text-sm font-semibold">{t(`level.${l}`)}</p>
               </div>
             ))}
           </div>
         </div>
         <div className="glow flex flex-col justify-between gap-4 rounded-2xl border border-border bg-card p-6">
           <div>
-            <h2 className="text-xl font-bold">Ficou com dúvida?</h2>
+            <h2 className="text-xl font-bold">{t("home.duvida")}</h2>
             <p className="mt-1 text-muted-foreground">
-              Pergunte à assistente de IA o que fazer em caso de chuva forte, enchente ou vento.
+              {t("home.duvidaTexto")}
             </p>
           </div>
           <Button asChild variant="hero" size="lg">
             <Link to="/assistente">
-              <MessageCircle /> Falar com a assistente
+              <MessageCircle /> {t("home.falar")}
             </Link>
           </Button>
         </div>
       </section>
 
       <p className="pb-6 text-center text-sm text-muted-foreground">
-        Emergência: Defesa Civil 199 · Bombeiros 193 · SAMU 192
+        {t("home.emergencia")}
       </p>
     </div>
   );

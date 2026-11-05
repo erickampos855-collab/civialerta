@@ -1,3 +1,4 @@
+import { getLang, LANG_INSTRUCTION } from "@/lib/i18n";
 import { useEffect, useMemo, useRef } from "react";
 import { createFileRoute, useHydrated } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
@@ -125,7 +126,7 @@ function ChatWindow({ threadId }: { threadId: string }) {
     () =>
       new DefaultChatTransport<UIMessage>({
         api: "/api/chat",
-        body: () => ({ threadId, context: stationContext(stationRef.current) }),
+        body: () => ({ threadId, context: `${stationContext(stationRef.current)}\n${LANG_INSTRUCTION[getLang()]}` }),
       }),
     [threadId],
   );

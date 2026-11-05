@@ -2,11 +2,12 @@ import { convertToModelMessages, tool, type UIMessage } from "ai";
 import { z } from "zod";
 import { createResponsesCall } from "./responses.ts";
 import { fetchCurrentWeather, geocodeBrazil } from "../weather.server";
+import { describeWeather } from "../weather-data";
 
 const weatherTools = {
   consultar_tempo: tool({
     description:
-      "Consulta a temperatura e o tempo AGORA em qualquer cidade do Brasil (dados Open-Meteo, não oficiais). Use sempre que perguntarem sobre a temperatura ou o tempo de uma cidade diferente de Paranaguá, ou para comparar cidades.",
+      "Consulta o tempo AGORA e a previsão dos próximos 7 dias (temperatura, chuva, vento) em qualquer cidade do Brasil (dados Open-Meteo, não oficiais). Use sempre que perguntarem sobre a temperatura ou o tempo de uma cidade diferente de Paranaguá, ou para comparar cidades.",
     inputSchema: z
       .object({
         cidade: z.string().describe("Nome da cidade brasileira, ex.: Curitiba"),
@@ -28,6 +29,16 @@ const weatherTools = {
           vento_kmh: w.vento,
           condicao: w.condicao,
           horario_local: w.horario,
+          chuva_agora_mm: w.chuva,
+          previsao_7_dias: w.previsao.map((d) => ({
+            data: d.data,
+            max: d.max,
+            min: d.min,
+            chuva_mm: d.chuva,
+            chance_chuva: d.probChuva,
+            vento_max_kmh: d.ventoMax,
+            condicao: describeWeather(d.codigo),
+          })),
           fonte: "Open-Meteo (modelo meteorológico, não é alerta oficial)",
         };
       } catch (e) {
