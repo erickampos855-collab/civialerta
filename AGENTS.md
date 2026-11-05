@@ -37,3 +37,4 @@ use the editor.
 - The Brazil map is a pre-simplified SVG (`src/lib/brazil-map.ts`, generated with its own `project()`); no tile provider or map SDK — avoids keys and SSR issues.
 - Site language (pt/en/es) is a small browser store + dictionary in `src/lib/i18n.ts` (`useT`); the chosen language is also sent to the assistant — no i18n library needed for a small site.
 - Libras uses the official VLibras widget loaded client-side by `src/components/vlibras-widget.tsx` in the root layout — free government tool, no key.
+- Voice assistant (`/voz`) uses GPT Live via the persistent WebSocket relay `src/lib/live-relay.server.ts` (dispatched from `src/server.ts`, dev via `live-vite-plugin.ts`) with the `useLiveVoice` hook — audio never passes through the app server and the key stays server-side.

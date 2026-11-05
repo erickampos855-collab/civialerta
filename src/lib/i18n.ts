@@ -54,6 +54,7 @@ const DICT = {
   "nav.brasil": { pt: "Brasil", en: "Brazil", es: "Brasil" },
   "nav.historico": { pt: "Histórico", en: "History", es: "Historial" },
   "nav.assistente": { pt: "Assistente IA", en: "AI Assistant", es: "Asistente IA" },
+  "nav.voz": { pt: "Falar por voz", en: "Voice", es: "Hablar por voz" },
   "nav.admin": { pt: "Administração", en: "Admin", es: "Administración" },
   "header.sub": { pt: "Estação meteorológica · Paranaguá", en: "Weather station · Paranaguá", es: "Estación meteorológica · Paranaguá" },
   "lang.label": { pt: "Idioma", en: "Language", es: "Idioma" },
