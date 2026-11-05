@@ -11,9 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AssistenteIndexRouteImport } from './routes/assistente.index'
+import { Route as AssistenteThreadIdRouteImport } from './routes/assistente.$threadId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistenteRoute = AssistenteRouteImport.update({
+  id: '/assistente',
+  path: '/assistente',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoRoute = HistoricoRouteImport.update({
@@ -36,16 +43,23 @@ const ApiChatRoute = ApiChatRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssistenteIndexRoute = AssistenteIndexRouteImport.update({
-  id: '/assistente/',
-  path: '/assistente/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AssistenteRoute,
+} as any)
+const AssistenteThreadIdRoute = AssistenteThreadIdRouteImport.update({
+  id: '/$threadId',
+  path: '/$threadId',
+  getParentRoute: () => AssistenteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/assistente': typeof AssistenteRouteWithChildren
   '/historico': typeof HistoricoRoute
   '/api/chat': typeof ApiChatRoute
+  '/assistente/$threadId': typeof AssistenteThreadIdRoute
   '/assistente/': typeof AssistenteIndexRoute
 }
 export interface FileRoutesByTo {
@@ -53,30 +67,54 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/historico': typeof HistoricoRoute
   '/api/chat': typeof ApiChatRoute
+  '/assistente/$threadId': typeof AssistenteThreadIdRoute
   '/assistente': typeof AssistenteIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/assistente': typeof AssistenteRouteWithChildren
   '/historico': typeof HistoricoRoute
   '/api/chat': typeof ApiChatRoute
+  '/assistente/$threadId': typeof AssistenteThreadIdRoute
   '/assistente/': typeof AssistenteIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/historico' | '/api/chat' | '/assistente/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/assistente'
+    | '/historico'
+    | '/api/chat'
+    | '/assistente/$threadId'
+    | '/assistente/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/historico' | '/api/chat' | '/assistente'
-  id: '__root__' | '/' | '/admin' | '/historico' | '/api/chat' | '/assistente/'
+  to:
+    | '/'
+    | '/admin'
+    | '/historico'
+    | '/api/chat'
+    | '/assistente/$threadId'
+    | '/assistente'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/assistente'
+    | '/historico'
+    | '/api/chat'
+    | '/assistente/$threadId'
+    | '/assistente/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AssistenteRoute: typeof AssistenteRouteWithChildren
   HistoricoRoute: typeof HistoricoRoute
   ApiChatRoute: typeof ApiChatRoute
-  AssistenteIndexRoute: typeof AssistenteIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -95,6 +133,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assistente': {
+      id: '/assistente'
+      path: '/assistente'
+      fullPath: '/assistente'
+      preLoaderRoute: typeof AssistenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/historico': {
       id: '/historico'
       path: '/historico'
@@ -111,20 +156,41 @@ declare module '@tanstack/react-router' {
     }
     '/assistente/': {
       id: '/assistente/'
-      path: '/assistente'
+      path: '/'
       fullPath: '/assistente/'
       preLoaderRoute: typeof AssistenteIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AssistenteRoute
+    }
+    '/assistente/$threadId': {
+      id: '/assistente/$threadId'
+      path: '/$threadId'
+      fullPath: '/assistente/$threadId'
+      preLoaderRoute: typeof AssistenteThreadIdRouteImport
+      parentRoute: typeof AssistenteRoute
     }
   }
 }
 
+interface AssistenteRouteChildren {
+  AssistenteThreadIdRoute: typeof AssistenteThreadIdRoute
+  AssistenteIndexRoute: typeof AssistenteIndexRoute
+}
+
+const AssistenteRouteChildren: AssistenteRouteChildren = {
+  AssistenteThreadIdRoute: AssistenteThreadIdRoute,
+  AssistenteIndexRoute: AssistenteIndexRoute,
+}
+
+const AssistenteRouteWithChildren = AssistenteRoute._addFileChildren(
+  AssistenteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AssistenteRoute: AssistenteRouteWithChildren,
   HistoricoRoute: HistoricoRoute,
   ApiChatRoute: ApiChatRoute,
-  AssistenteIndexRoute: AssistenteIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
