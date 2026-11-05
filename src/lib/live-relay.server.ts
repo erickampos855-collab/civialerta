@@ -2,6 +2,8 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { stepCountIs, streamText, tool, type ModelMessage } from "ai";
 import process from "node:process";
 import { z } from "zod";
+import { fetchCurrentWeather, geocodeBrazil } from "./weather.server";
+import { describeWeather } from "./weather-data";
 
 export type LiveConfig = {
   baseURL: string;
@@ -12,7 +14,13 @@ export type LiveConfig = {
 };
 
 // Fill from co-loaded knowledge: the gateway URL, the Live model and the resolved chat model.
-const liveSettings = { baseURL: "", liveModel: "", backendModel: "" };
+const liveSettings = {
+  baseURL: "https://ai.gateway.lovable.dev",
+  liveModel: "openai/gpt-live-1",
+  backendModel: "openai/gpt-6-astra",
+  openingInstructions:
+    "Comece agora em português do Brasil. Diga: Olá, eu sou a Gota, a assistente de voz do Alerta Civil Inteligente. Pode me perguntar sobre o tempo ou o que fazer em chuva forte, enchente ou vento. Depois escute.",
+};
 
 export type LiveSocket = {
   readonly readyState: number;
@@ -111,16 +119,16 @@ export function handleLiveRequest(request: Request): Response {
   return new Response(null, response);
 }
 
-const conversationInstructions = `You are Mira, a calm learning companion.
-Speak naturally in brief replies. Ask a focused question when details are unclear.
-Backchannel policy: Use moderate listening sounds without taking over.
-Interruption policy: Stop your answer and listen when the user interrupts.
+const conversationInstructions = `Você é a Gota, assistente de voz do Alerta Civil Inteligente, a estação meteorológica do Instituto Estadual de Educação Dr. Caetano Munhoz da Rocha, em Paranaguá, Paraná.
+Muitas pessoas que falam com você são cegas ou têm baixa visão. Fale em português do Brasil, com calma, frases curtas e simples. Nunca diga "veja na tela" ou "clique"; descreva tudo em palavras. Se a pessoa falar em inglês ou espanhol, responda no idioma dela.
+Ajude com: o tempo agora e a previsão em cidades do Brasil, e o que fazer com segurança em chuva forte, enchente, vento forte, calor, ar ruim ou trovoada.
+Nunca invente alertas oficiais nem temperaturas. Em perigo, diga os números: Defesa Civil 199, Bombeiros 193, SAMU 192, Polícia 190.
+Backchannel policy: Use poucos sons de escuta, sem tomar a vez da pessoa.
+Interruption policy: Pare de falar e escute quando a pessoa interromper.
 Delegation policy:
-Backend tools: Reason through questions and plan study sessions across days.
-Delegate to the backend when: The user wants a study schedule or careful reasoning,
-or a correction changes a question already being worked on.
-Do not delegate to the backend when: Greeting, clarifying a question, or repeating
-a still-current answer. Wait for the backend result before presenting its answer.`;
+Backend tools: Consultar o tempo atual e a previsão de 7 dias de qualquer cidade do Brasil (dados Open-Meteo, não oficiais).
+Delegate to the backend when: A pessoa pergunta a temperatura, chuva, vento ou previsão de uma cidade, ou corrige a cidade perguntada.
+Do not delegate to the backend when: Cumprimentos, dúvidas sobre segurança que você já sabe responder, ou repetir uma resposta atual. Espere o resultado antes de dizer números do tempo.`;
 
 const studyScheduleInput = z
   .object({
@@ -200,23 +208,45 @@ async function answerQuestion(
       },
     },
     system:
-      "Help a spoken learning companion answer the latest user question. " +
-      "Transcripts may be incomplete or corrected. Use the latest correction. " +
-      "Continue from completed tool results; do not repeat completed actions. " +
-      "Return verified facts and useful next steps in at most 150 words. " +
-      "To display a study schedule for the current request, call plan_study_schedule with its total minutes and days. " +
-      "Ask for missing details instead of guessing. The tool only calculates a draft plan; " +
-      "it does not save calendar events. You have no other tools.",
+      "Você ajuda a Gota, uma assistente de VOZ para pessoas cegas, a responder a última pergunta. " +
+      "As transcrições podem estar incompletas ou corrigidas; use a correção mais recente. " +
+      "Não repita ações já concluídas. Responda em português do Brasil (ou no idioma da pessoa), em até 80 palavras, " +
+      "em frases curtas para serem faladas em voz alta: sem listas, sem símbolos, sem markdown; escreva 'graus' e 'quilômetros por hora'. " +
+      "Para o tempo de uma cidade use consultar_tempo e diga que são dados do Open-Meteo, não alertas oficiais. Nunca invente números. " +
+      "Se faltar a cidade, peça. Você não tem outras ferramentas.",
     messages,
     tools: {
-      plan_study_schedule: tool({
-        description: "Distribute a total study time evenly across days and return a draft schedule.",
-        inputSchema: studyScheduleInput,
-        execute: async (args) => {
+      consultar_tempo: tool({
+        description: "Tempo agora e previsão de 7 dias para uma cidade do Brasil (Open-Meteo, não oficial).",
+        inputSchema: z.object({ cidade: z.string(), estado: z.string().nullable() }).strict(),
+        execute: async ({ cidade, estado }) => {
           signal.throwIfAborted();
-          const plan = planStudySchedule(args);
-          onPlan(plan);
-          return plan;
+          try {
+            const city = await geocodeBrazil(cidade, estado);
+            if (!city) return { erro: `Cidade "${cidade}" não encontrada no Brasil.` };
+            const [w] = await fetchCurrentWeather([city]);
+            if (!w) return { erro: "Sem dados de tempo agora." };
+            return {
+              cidade: w.nome,
+              estado: w.uf,
+              temperatura: w.temperatura,
+              sensacao: w.sensacao,
+              umidade: w.umidade,
+              vento_kmh: w.vento,
+              chuva_agora_mm: w.chuva,
+              condicao: w.condicao,
+              previsao: w.previsao.map((d) => ({
+                data: d.data,
+                max: d.max,
+                min: d.min,
+                chuva_mm: d.chuva,
+                chance_chuva: d.probChuva,
+                condicao: describeWeather(d.codigo),
+              })),
+            };
+          } catch (e) {
+            return { erro: e instanceof Error ? e.message : "Serviço de clima indisponível." };
+          }
         },
       }),
     },
@@ -596,7 +626,7 @@ export function bindLiveConnection(
         session: {
           model: config.liveModel,
           instructions: conversationInstructions,
-          audio: { output: { voice: "marin" } },
+          audio: { output: { voice: "bossa" } },
           delegation: { type: "client" },
         },
         transport: { type: "webrtc", sdp },
