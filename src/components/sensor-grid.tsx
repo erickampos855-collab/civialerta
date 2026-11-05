@@ -75,7 +75,7 @@ export function SensorGrid({
               />
               <span className={cn("size-2.5 rounded-full", HEALTH_DOT[health])} title={HEALTH_LABEL[health]} />
             </div>
-            <p className="mt-3 font-display text-2xl font-bold">{value}</p>
+            <p className="mt-3 font-display text-xl font-bold leading-tight">{value}</p>
             <p className="text-sm font-semibold">{s.nome}</p>
             <p className="text-xs text-muted-foreground">
               {s.modelo} · {HEALTH_LABEL[health]}
