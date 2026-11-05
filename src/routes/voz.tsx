@@ -41,8 +41,8 @@ function VozPage() {
     const isOut = event.type === "session.output_transcript.delta";
     if (!isIn && !isOut) return;
     const role = isIn ? "user" : "assistant";
-    const delta = typeof event.delta === "string" ? event.delta : "";
-    const start = typeof event.start_ms === "number" ? event.start_ms : 0;
+    const delta = typeof event["delta"] === "string" ? event["delta"] : "";
+    const start = typeof event["start_ms"] === "number" ? event["start_ms"] : 0;
     setLines((prev) => {
       const last = prev[prev.length - 1];
       if (last && last.role === role) {
