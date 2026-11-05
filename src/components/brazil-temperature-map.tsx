@@ -31,7 +31,13 @@ export function BrazilTemperatureMap({
         ))}
       </g>
       <g>
-        {cidades.map((c) => {
+        {[...cidades]
+          // Station first (underneath nearby Curitiba), the highlighted city last (on top).
+          .sort((a, b) => {
+            const rank = (c: CityWeather) => (active === `${c.uf}-${c.nome}` ? 2 : c.estacao ? 0 : 1);
+            return rank(a) - rank(b);
+          })
+          .map((c) => {
           const key = `${c.uf}-${c.nome}`;
           const [x, y] = project(c.lon, c.lat);
           const isActive = active === key;
