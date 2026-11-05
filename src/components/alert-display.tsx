@@ -65,7 +65,8 @@ export function AlertDisplay({
   }, [sequenceKey]);
 
   const safeIndex = index < slides.length ? index : 0;
-  const current = slides[safeIndex];
+  // slides always has at least one screen (normal template when no alerts).
+  const current = (slides[safeIndex] ?? slides[0]) as Slide;
 
   useEffect(() => {
     if (slides.length <= 1) return;
