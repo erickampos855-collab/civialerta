@@ -35,3 +35,5 @@ use the editor.
 - AI assistant streams through `/api/chat` (server route) with Lovable AI Gateway Responses helpers in `src/lib/ai/`; conversations are threads at `/assistente/$threadId` saved in localStorage — keeps the API key server-side.
 - Live weather for other Brazilian cities comes from Open-Meteo (free, no key) via `src/lib/weather.server.ts`, used by the `/brasil` map server function and the assistant's `consultar_tempo` tool — one source, no secrets.
 - The Brazil map is a pre-simplified SVG (`src/lib/brazil-map.ts`, generated with its own `project()`); no tile provider or map SDK — avoids keys and SSR issues.
+- Site language (pt/en/es) is a small browser store + dictionary in `src/lib/i18n.ts` (`useT`); the chosen language is also sent to the assistant — no i18n library needed for a small site.
+- Libras uses the official VLibras widget loaded client-side by `src/components/vlibras-widget.tsx` in the root layout — free government tool, no key.
