@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as HistoricoRouteImport } from './routes/historico'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AssistenteIndexRouteImport } from './routes/assistente.index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const HistoricoRoute = HistoricoRouteImport.update({
   path: '/historico',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssistenteIndexRoute = AssistenteIndexRouteImport.update({
   id: '/assistente/',
   path: '/assistente/',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/historico': typeof HistoricoRoute
+  '/api/chat': typeof ApiChatRoute
   '/assistente/': typeof AssistenteIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/historico': typeof HistoricoRoute
+  '/api/chat': typeof ApiChatRoute
   '/assistente': typeof AssistenteIndexRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/historico': typeof HistoricoRoute
+  '/api/chat': typeof ApiChatRoute
   '/assistente/': typeof AssistenteIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/historico' | '/assistente/'
+  fullPaths: '/' | '/admin' | '/historico' | '/api/chat' | '/assistente/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/historico' | '/assistente'
-  id: '__root__' | '/' | '/admin' | '/historico' | '/assistente/'
+  to: '/' | '/admin' | '/historico' | '/api/chat' | '/assistente'
+  id: '__root__' | '/' | '/admin' | '/historico' | '/api/chat' | '/assistente/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   HistoricoRoute: typeof HistoricoRoute
+  ApiChatRoute: typeof ApiChatRoute
   AssistenteIndexRoute: typeof AssistenteIndexRoute
 }
 
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistoricoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assistente/': {
       id: '/assistente/'
       path: '/assistente'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   HistoricoRoute: HistoricoRoute,
+  ApiChatRoute: ApiChatRoute,
   AssistenteIndexRoute: AssistenteIndexRoute,
 }
 export const routeTree = rootRouteImport
