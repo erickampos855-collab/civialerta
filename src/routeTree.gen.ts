@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AssistenteRouteImport } from './routes/assistente'
+import { Route as BrasilRouteImport } from './routes/brasil'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AssistenteIndexRouteImport } from './routes/assistente.index'
@@ -30,6 +31,11 @@ const AdminRoute = AdminRouteImport.update({
 const AssistenteRoute = AssistenteRouteImport.update({
   id: '/assistente',
   path: '/assistente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrasilRoute = BrasilRouteImport.update({
+  id: '/brasil',
+  path: '/brasil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoRoute = HistoricoRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/assistente': typeof AssistenteRouteWithChildren
+  '/brasil': typeof BrasilRoute
   '/historico': typeof HistoricoRoute
   '/api/chat': typeof ApiChatRoute
   '/assistente/$threadId': typeof AssistenteThreadIdRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/brasil': typeof BrasilRoute
   '/historico': typeof HistoricoRoute
   '/api/chat': typeof ApiChatRoute
   '/assistente/$threadId': typeof AssistenteThreadIdRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/assistente': typeof AssistenteRouteWithChildren
+  '/brasil': typeof BrasilRoute
   '/historico': typeof HistoricoRoute
   '/api/chat': typeof ApiChatRoute
   '/assistente/$threadId': typeof AssistenteThreadIdRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/assistente'
+    | '/brasil'
     | '/historico'
     | '/api/chat'
     | '/assistente/$threadId'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/brasil'
     | '/historico'
     | '/api/chat'
     | '/assistente/$threadId'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/assistente'
+    | '/brasil'
     | '/historico'
     | '/api/chat'
     | '/assistente/$threadId'
@@ -113,6 +125,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AssistenteRoute: typeof AssistenteRouteWithChildren
+  BrasilRoute: typeof BrasilRoute
   HistoricoRoute: typeof HistoricoRoute
   ApiChatRoute: typeof ApiChatRoute
 }
@@ -138,6 +151,13 @@ declare module '@tanstack/react-router' {
       path: '/assistente'
       fullPath: '/assistente'
       preLoaderRoute: typeof AssistenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brasil': {
+      id: '/brasil'
+      path: '/brasil'
+      fullPath: '/brasil'
+      preLoaderRoute: typeof BrasilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/historico': {
@@ -189,6 +209,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AssistenteRoute: AssistenteRouteWithChildren,
+  BrasilRoute: BrasilRoute,
   HistoricoRoute: HistoricoRoute,
   ApiChatRoute: ApiChatRoute,
 }

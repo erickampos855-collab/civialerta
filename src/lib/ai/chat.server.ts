@@ -1,6 +1,41 @@
-import { convertToModelMessages, type UIMessage } from "ai";
+import { convertToModelMessages, tool, type UIMessage } from "ai";
 import { z } from "zod";
 import { createResponsesCall } from "./responses.ts";
+import { fetchCurrentWeather, geocodeBrazil } from "../weather.server";
+
+const weatherTools = {
+  consultar_tempo: tool({
+    description:
+      "Consulta a temperatura e o tempo AGORA em qualquer cidade do Brasil (dados Open-Meteo, não oficiais). Use sempre que perguntarem sobre a temperatura ou o tempo de uma cidade diferente de Paranaguá, ou para comparar cidades.",
+    inputSchema: z
+      .object({
+        cidade: z.string().describe("Nome da cidade brasileira, ex.: Curitiba"),
+        estado: z.string().nullable().describe("Estado ou sigla (ex.: Paraná ou PR), ou null se não informado"),
+      })
+      .strict(),
+    execute: async ({ cidade, estado }) => {
+      try {
+        const city = await geocodeBrazil(cidade, estado);
+        if (!city) return { erro: `Não encontrei a cidade "${cidade}" no Brasil.` };
+        const [w] = await fetchCurrentWeather([city]);
+        if (!w) return { erro: "Sem dados de tempo para essa cidade agora." };
+        return {
+          cidade: w.nome,
+          estado: w.uf,
+          temperatura: w.temperatura,
+          sensacao: w.sensacao,
+          umidade: w.umidade,
+          vento_kmh: w.vento,
+          condicao: w.condicao,
+          horario_local: w.horario,
+          fonte: "Open-Meteo (modelo meteorológico, não é alerta oficial)",
+        };
+      } catch (e) {
+        return { erro: e instanceof Error ? e.message : "Serviço de clima indisponível." };
+      }
+    },
+  }),
+};
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
 const MODEL = "openai/gpt-6-astra";
@@ -20,6 +55,7 @@ Como responder:
 - Use o "Estado atual da estação" abaixo quando a pergunta for sobre a situação agora. Deixe claro que são dados da estação local (no momento, simulados para testes), não previsões oficiais.
 - Nunca invente previsões, limites oficiais ou alertas oficiais. Para informações oficiais, indique a Defesa Civil (199) e o INMET.
 - Em risco de vida, oriente a ligar imediatamente: Defesa Civil 199, Bombeiros 193, SAMU 192, Polícia 190.
+- Para temperatura ou tempo de outras cidades do Brasil, use a ferramenta consultar_tempo (uma chamada por cidade). Diga que são dados do Open-Meteo, não alertas oficiais. Nunca invente temperaturas.
 - Se a pergunta não tiver relação com tempo, clima, segurança ou o sistema, responda brevemente e com educação, e traga a conversa de volta ao tema.`;
 
 export async function handleChat(request: Request): Promise<Response> {
@@ -47,5 +83,6 @@ export async function handleChat(request: Request): Promise<Response> {
     modelMessages,
     instructions,
     messages,
+    weatherTools,
   ).response();
 }
